@@ -23,6 +23,32 @@ var inputData = {
 
 ```
 
+### Input Properties
+#### Departure City
+City name indicating the location where the user will be starting their plan
+#### Departure Timezone
+Timezone string for the departure city
+#### Departure DateTime
+The date and time of the user departure flight
+#### Arrival City
+City name indicating the location where the user will be starting their plan
+#### Arrival Timezone
+Timezone string for the arrival city
+#### Arrival DateTime
+The date and time the user arrives in the destination
+#### Normal Sleep Time
+The normal time the user goes to sleep.
+#### Normal Wake Time
+The normal time the user wakes up.
+#### Plan Start Date
+Optional setting indicating when the plan should start.
+Possible values could be 3 days before departure, departure date, arrival date, etc.
+#### Sleep Shift Speed on Arrival
+values : Immediate or Gradual
+
+This indicates whether to immediately switch the user's sleep time on arrival to their normal sleep time in the destination time zone or to gradual shift the sleep time to match the destination time zone.
+
+
 ## Output Data Object
 The following is an example output object
 ```javascript
