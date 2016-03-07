@@ -20,8 +20,16 @@ var plan = core.getPlan(inputData);
 The following is an example definition of the input object
 ```javascript
 var inputData = {
-departureCity:"Paris, France",
-
+    departureCity:      "New York City, United States",
+    departureTimezone:  "America/New_York",
+    departureDatetime:  "2016-05-08 21:30",
+    arrivalCity:        "Paris, France",
+    arrivalTimezone:    "Europe/Paris",
+    arrivalDatetime:    "2016-05-09 11:05",
+    sleepTime:          "22:00",
+    wakeTime:           "06:00",
+    planStart:          "arrival",
+    shiftSpeed:         "gradual"
 }
 
 ```
@@ -31,13 +39,13 @@ departureCity:"Paris, France",
 City name indicating the location where the user will be starting their plan
 #### Departure Timezone
 Timezone string for the departure city
-#### Departure DateTime
+#### Departure Datetime
 The date and time of the user departure flight
 #### Arrival City
 City name indicating the location where the user will be starting their plan
 #### Arrival Timezone
 Timezone string for the arrival city
-#### Arrival DateTime
+#### Arrival Datetime
 The date and time the user arrives in the destination
 #### Normal Sleep Time
 The normal time the user goes to sleep.
@@ -56,8 +64,8 @@ This indicates whether to immediately switch the user's sleep time on arrival to
 The following is an example output object
 ```javascript
 {
-    inputData:{ ... },
-    ... tbc ...
+    inputData: {},
+    events:[]
 }
 ```
 
