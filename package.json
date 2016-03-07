@@ -1,0 +1,19 @@
+{
+  "name": "jet-lag-core",
+  "version": "1.0.0",
+  "description": " ",
+  "main": "lib/JetLagCore.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Uiterwyk",
+  "devDependencies": {
+
+  },
+  "dependencies": {
+    "moment": "^2.11.2"
+  }
+}
