@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing</title>
+</head>
+<body>
+<script src="../node_modules/moment/min/moment.min.js" type="text/javascript"></script>
+<script src="../lib/JetLagCore.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+    function loadJsonFile(path,callback)
+    {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function() {
+            if (httpRequest.readyState === 4) {
+                if (httpRequest.status === 200) {
+                    var data = JSON.parse(httpRequest.responseText);
+                    if (callback) callback(data);
+                }
+            }
+        };
+        httpRequest.open('GET', path);
+        httpRequest.send();
+    }
+
+    function onLoadCityTimezoneDataComplete(cityTimezoneData)
+    {
+        var filterString = "france";
+        for (var i in obj)
+        {
+
+        }
+        var filteredCities = cityTimezoneData.filter(function(obj)
+        {
+           if(obj[0].toLowerCase().indexOf(filterString) > -1)
+           {
+               return true;
+           }else
+           {
+               return false;
+           }
+        }
+        );
+        console.log(filteredCities);
+
+        var core = new JetLagCore();
+
+        var mbt = core.getTimeOfMinimumBodyTemperature("7 pm","10 am");
+        console.log("Minimum body temp occurs at " + mbt);
+    }
+
+    loadJsonFile('../data/json/city-timezone-array.json',onLoadCityTimezoneDataComplete);
+
+
+</script>
+</body>
+</html>
