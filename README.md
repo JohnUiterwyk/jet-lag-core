@@ -1,7 +1,9 @@
 # JetLagCore
 JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize he effect of jet lag.
+
 ## Prerequisites
 - [MomentJS](http://momentjs.com/) v2.x
+
 ## Usage
 include the library in your app after including MomentJS
 ```html
@@ -18,6 +20,7 @@ var plan = core.getPlan(inputData);
 The following is an example definition of the input object
 ```javascript
 var inputData = {
+departureCity:"Paris, France",
 
 }
 
