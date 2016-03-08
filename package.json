@@ -10,10 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "John Uiterwyk",
-  "devDependencies": {
-
-  },
+  "devDependencies": {},
   "dependencies": {
-    "moment": "^2.11.2"
+    "moment": "^2.11.2",
+    "moment-timezone": "^0.5.1"
   }
 }
