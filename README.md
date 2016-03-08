@@ -10,9 +10,10 @@ include the library in your app after including MomentJS
 <script src="../lib/JetLagCore.js" type="text/javascript"></script>
 ```
 
-The library lives in the global object `JetLagCore`. Create a new object and pass the input data object to the `getPlan` method.
+The library lives in the global namespace `JetLag`. With `JetLag` is the `Core` class.
+Create a new object and pass the input data object to the `getPlan` method.
 ```javascript
-var core = new JetLagCore();
+var core = new JetLag.Core();
 var plan = core.getPlan(inputData);
 ```
 
