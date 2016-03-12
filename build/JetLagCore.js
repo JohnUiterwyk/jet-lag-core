@@ -1,10 +1,9 @@
 /**
- * Created by johnuiterwyk on 3/4/16.
+ * Created by johnuiterwyk on 3/12/16.
  */
 if (typeof JetLag == "undefined") {
     var JetLag = {};
 };
-
 JetLag.Constants =
 {
     PLAN_START_3_DAYS_ADVANCE: "PLAN_START_3_DAYS_ADVANCE",
@@ -15,39 +14,15 @@ JetLag.Constants =
     PHASE_ADVANCE:"PHASE_ADVANCE",
     PHASE_DELAY:"PHASE_DELAY"
 }
-
-JetLag.Event = function(title,startTime, duration)
-{
-    this.title = title;
-    this.startTime = startTime;
-    this.endTime = moment(startTime).add(duration,"hours");
-    this.duration = duration;
-
+/**
+ * Created by johnuiterwyk on 3/4/16.
+ */
+if (typeof JetLag == "undefined") {
+    var JetLag = {};
 };
-JetLag.Event.prototype.toString = function()
-{
-    return "Event: " + this.title + ", start: " +this.startTime.toString()+", end:"+this.endTime.toString() + "\n";
-}
 
-JetLag.Plan = function()
-{
-    this.events = [];
-};
-JetLag.Plan.prototype.toString = function()
-{
-    var result = "";
-    for(var i=0;i<this.events.length;i++)
-    {
-        result += this.events[i].toString();
-    }
-    return result;
-}
-
-JetLag.Plan.prototype.addEvent = function(title,startTime, duration)
-{
-    var event = new JetLag.Event(title,startTime, duration);
-    this.events.push(event);
-}
+// Current version.
+JetLag.VERSION = '0.8';
 
 JetLag.Core = function()
 {
@@ -152,3 +127,67 @@ JetLag.Core.prototype.parseTimeString = function(timeString)
 {
     return moment(timeString, ['h:m ', 'H:m','h:m a', 'H:m a', 'h a', 'H a', 'ha', 'Ha', 'h', 'H']);
 }
+
+// Export the JetLag object for **Node.js**, with
+// backwards-compatibility for their old module API. If we're in
+// the browser, add `JetLag` as a global object.
+// (`nodeType` is checked to ensure that `module`
+// and `exports` are not HTML elements.)
+if (typeof exports != 'undefined' && !exports.nodeType) {
+    if (typeof module != 'undefined' && !module.nodeType && module.exports) {
+        exports = module.exports = JetLag;
+    }
+    exports.JetLag = JetLag;
+} else {
+    root.JetLag = JetLag;
+}
+
+
+/**
+ * Created by johnuiterwyk on 3/12/16.
+ */
+if (typeof JetLag == "undefined") {
+    var JetLag = {};
+};
+
+JetLag.Event = function(title,startTime, duration)
+{
+
+    this.title = title;
+    this.startTime = startTime;
+    this.endTime = moment(startTime).add(duration,"hours");
+    this.duration = duration;
+
+};
+
+JetLag.Event.prototype.toString = function()
+{
+    return "Event: " + this.title + ", start: " +this.startTime.toString()+", end:"+this.endTime.toString() + "\n";
+};
+/**
+ * Created by johnuiterwyk on 3/12/16.
+ */
+if (typeof JetLag == "undefined") {
+    var JetLag = {};
+};
+
+JetLag.Plan = function()
+{
+    this.events = [];
+};
+
+JetLag.Plan.prototype.toString = function()
+{
+    var result = "";
+    for(var i=0;i<this.events.length;i++)
+    {
+        result += this.events[i].toString();
+    }
+    return result;
+};
+
+JetLag.Plan.prototype.addEvent = function(title,startTime, duration)
+{
+    var event = new JetLag.Event(title,startTime, duration);
+    this.events.push(event);
+};
