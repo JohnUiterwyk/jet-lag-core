@@ -7,21 +7,55 @@ if (typeof JetLag == "undefined") {
 
 JetLag.Plan = function()
 {
-    this.events = [];
+    this.flightEvents = new JetLag.EventCollection();
+    this.sleepEvents = new JetLag.EventCollection();
+    this.minBodyTempEvents = new JetLag.EventCollection();
+    this.lightEvents = new JetLag.EventCollection();
+    this.departureTimezone = '"';
+    this.arrivalTimezone = "";
 };
 
 JetLag.Plan.prototype.toString = function()
 {
-    var result = "";
-    for(var i=0;i<this.events.length;i++)
-    {
-        result += this.events[i].toString();
-    }
-    return result;
+    return this.getAllEvents().toString();
 };
 
-JetLag.Plan.prototype.addEvent = function(title,startTime, duration)
+
+JetLag.Plan.prototype.getStartMoment = function()
 {
-    var event = new JetLag.Event(title,startTime, duration);
-    this.events.push(event);
+    return this.getAllEvents().getStartMoment();
+};
+
+JetLag.Plan.prototype.getEndMoment = function()
+{
+    return this.getAllEvents().getEndMoment();
+}
+JetLag.Plan.prototype.getTotalDuration = function()
+{
+
+    var allEvents = this.getAllEvents();
+    return moment.duration(allEvents.getEndMoment().diff(allEvents.getStartMoment()));
+}
+
+JetLag.Plan.prototype.getAllEvents = function()
+{
+    var result = [];
+    result.push.apply(result, this.sleepEvents);
+    result.push.apply(result, this.minBodyTempEvents);
+    result.push.apply(result, this.lightEvents);
+    result.push.apply(result, this.flightEvents);
+    return new JetLag.EventCollection(result);
+};
+
+JetLag.Plan.prototype.getAllEventsInDepartureTimezone = function()
+{
+    var result = this.getAllEvents();
+    result.setTimezone(this.departureTimezone);
+    return result;
+};
+JetLag.Plan.prototype.getAllEventsInArrivalTimezone = function()
+{
+    var result = this.getAllEvents();
+    result.setTimezone(this.arrivalTimezone);
+    return result;
 };
