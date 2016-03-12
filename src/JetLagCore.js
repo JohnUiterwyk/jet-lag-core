@@ -11,87 +11,150 @@ JetLag.VERSION = '0.8';
 JetLag.Core = function()
 {
     this.example = {
-        departureCity:      "New York City, United States",
-        departureTimezone:  "America/New_York",
-        departureDatetime:  "2016-05-08 21:30",
+        departureCity:      "Chicago, United States",
+        departureTimezone:  "America/Chicago",
+        departureDatetime:  "2016-05-08 16:30",
         arrivalCity:        "Paris, France",
         arrivalTimezone:    "Europe/Paris",
-        arrivalDatetime:    "2016-05-09 11:05",
-        sleepTime:          "22:00",
-        wakeTime:           "06:00",
-        planStart:          "PLAN_START_ARRIVAL",
-        shiftSpeed:         "SHIFT_SPEED_GRADUAL"
-    }
+        arrivalDatetime:    "2016-05-09 08:00",
+        sleepTime:          "00:30",
+        wakeTime:           "08:00",
+        planStart:          JetLag.Constants.PLAN_START_3_DAYS_ADVANCE,
+        shiftSpeed:         JetLag.Constants.SHIFT_SPEED_GRADUAL
+    };
+
 };
 JetLag.Core.prototype.getPlan = function(config)
 {
     //create the holder for the plan.
     var plan = new JetLag.Plan();
+    plan.departureTimezone = config.departureTimezone;
+    plan.arrivalTimezone = config.arrivalTimezone;
 
     // first convert times to moment objects
     var departTime = moment.tz(config.departureDatetime, config.departureTimezone);
     var arrivalTime = moment.tz(config.arrivalDatetime, config.arrivalTimezone);
 
     //calculate duration of the flight, then add a flight event to the plan
-    var flightDuration = moment.duration(departTime.diff(arrivalTime));
-    plan.addEvent("flight",departTime,flightDuration);
+    var flightDuration = moment.duration(arrivalTime.diff(departTime.clone().tz(config.arrivalTimezone)));
+    plan.flightEvents.addEvent("flight",departTime,flightDuration);
 
     // calculate when to start the plan
     var planStartTime;
-    switch(inputData.planStart)
+    switch(config.planStart)
     {
         case JetLag.Constants.PLAN_START_3_DAYS_ADVANCE:
-            planStartTime = moment(departTime).subtract(3,"days").startOf("day");
+            planStartTime = departTime.clone().subtract(3,"days").startOf("day");
             break;
         case JetLag.Constants.PLAN_START_DEPARTURE:
-            planStartTime = moment(departTime);
+            planStartTime = departTime.clone();
             break;
         case JetLag.Constants.PLAN_START_ARRIVAL:
-            planStartTime = moment(arrivalTime);
+            planStartTime = arrivalTime.clone();
             break;
     }
 
-    var timezoneDifference = this.getTimezoneDifference(config.departureTimezone, config.arrivalTimezone);
 
     var normalSleepTime, normalWakeTime, sleepDuration;
     normalSleepTime = this.parseTimeString(config.sleepTime);
     normalWakeTime = this.parseTimeString(config.wakeTime);
     if(normalWakeTime < normalSleepTime) {
-        normalWakeTime = moment(normalWakeTime).add('24', 'hours')
+        normalWakeTime.add('24', 'hours');
     }
     sleepDuration = moment.duration(normalWakeTime.diff(normalSleepTime));
 
-    var sleepStart, mbtOffset, mbtStart, phaseDirection, mbtShift;
+    var sleepStart, mbtStart, mbtTarget, phaseDirection, mbtShift;
     // first lets figure out the sleep / wake time to start from
-    sleepStart =  moment(planStartTime).subtract(1,"days");
+    sleepStart =  planStartTime.clone().subtract(1,"days");
     // sleep start will always be in home timezone
     sleepStart.tz(inputData.departureTimezone);
     // set the hour and minute using normal sleep time
-    sleepStart.hours(normalSleepTime.hours());
-    sleepStart.minutes(normalSleepTime.minutes());
+    sleepStart.hours(normalSleepTime.hour());
+    sleepStart.minutes(normalSleepTime.minute());
+
+    //
+    plan.sleepEvents.addEvent("start sleep",sleepStart,sleepDuration);
+
+
     if(sleepDuration <= 7)
     {
-        mbtOffset = sleepDuration.subtract(2,"hours");
+        mbtStart = sleepStart.clone().add(sleepDuration).subtract(2,"hours");
     }else
     {
-        mbtOffset = sleepDuration.subtract(3,"hours");
+        mbtStart = sleepStart.clone().add(sleepDuration).subtract(3,"hours");
     }
-    mbtStart = moment(sleepStart).add(mbtOffset);
+    plan.minBodyTempEvents.addEvent("start min body temp",mbtStart,moment.duration(0));
 
-    if(timezoneDifference > 8 || timezoneDifference < 0)
+
+    var timezoneDifference = this.getTimezoneDifference(config.departureTimezone, config.arrivalTimezone);
+    if(timezoneDifference > -8 && timezoneDifference < 0)
+    {
+
+        phaseDirection = JetLag.Constants.PHASE_ADVANCE; //shift sleep earlier
+        mbtShift = -1;
+    }else
     {
         phaseDirection = JetLag.Constants.PHASE_DELAY; //shift sleep later
         mbtShift = 2;
-    }else
+    }
+
+    var mbtDaysToShift = Math.ceil(timezoneDifference/mbtShift);
+    if(timezoneDifference <=-8)
     {
-        phaseDirection = JetLag.Constants.PHASE_ADVANCE; //shift sleep earlier
-        mbtShift = -1;
+        mbtDaysToShift = Math.ceil((24+timezoneDifference)/mbtShift);
+    }
+
+    mbtTarget = mbtStart.clone().add(mbtDaysToShift,'days');
+    mbtTarget.add(timezoneDifference,"hours");
+    //plan.minBodyTempEvents.addEvent("target min body temp",mbtTarget,moment.duration(0));
+
+
+
+
+
+    // for sleep:
+    // shift
+
+    var sleepShifted = false;
+    var nextSleep = sleepStart.clone();
+    var mbtNext = mbtStart.clone();
+    for(var i=0;i<mbtDaysToShift;i++)
+    {
+        mbtNext.add(1,'days').add(mbtShift,'hours');
+        plan.minBodyTempEvents.addEvent("min body temp",mbtNext.clone(),moment.duration(0));
+
+        var seekLight, seekDark;
+
+        if(phaseDirection === JetLag.Constants.PHASE_DELAY)
+        {
+            plan.lightEvents.addEvent("seek light",mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent("seek dark",mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+        }else
+        {
+            plan.lightEvents.addEvent("seek dark",mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent("seek light",mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+
+        }
+
+        //now sleep shift
+        nextSleep.add(1,'days');
+        if(sleepShifted === false)
+        {
+                if (config.shiftSpeed === JetLag.Constants.SHIFT_SPEED_IMMEDIATE && nextSleep > arrivalTime)
+                {
+                    nextSleep.add((mbtDaysToShift-i)*mbtShift,'hours');
+                    sleepShifted =true;
+                }else
+                {
+                    nextSleep.add(mbtShift,'hours');
+                }
+        }
+        plan.sleepEvents.addEvent("sleep",nextSleep.clone(),sleepDuration);
+
     }
 
 
-    // we can phase delay by 2 hours a day, and phase advance by one hour a day.
-    //
-    plan.addEvent("normal sleep",sleepStart,sleepDuration);
+    // now calculate sleep plan
 
     return plan;
 }
@@ -105,12 +168,14 @@ JetLag.Core.prototype.getTimezoneDifference = function(fromTimezone, toTimezone)
     var toTimezoneOffset = moment.tz.zone(toTimezone).offset(now);
 
 // calculate the difference in hours
-    return ((fromTimezoneOffset - toTimezoneOffset) / 60);
-}
+    return ((toTimezoneOffset - fromTimezoneOffset ) / 60);
+};
+
 JetLag.Core.prototype.parseTimeString = function(timeString)
 {
     return moment(timeString, ['h:m ', 'H:m','h:m a', 'H:m a', 'h a', 'H a', 'ha', 'Ha', 'h', 'H']);
-}
+};
+
 
 // Export the JetLag object for **Node.js**, with
 // backwards-compatibility for their old module API. If we're in
@@ -122,7 +187,4 @@ if (typeof exports != 'undefined' && !exports.nodeType) {
         exports = module.exports = JetLag;
     }
     exports.JetLag = JetLag;
-} else {
-    root.JetLag = JetLag;
 }
-
