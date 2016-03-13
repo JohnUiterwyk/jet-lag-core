@@ -37,7 +37,7 @@ JetLag.Core.prototype.getPlan = function(config)
 
     //calculate duration of the flight, then add a flight event to the plan
     var flightDuration = moment.duration(arrivalTime.diff(departTime.clone().tz(config.arrivalTimezone)));
-    plan.flightEvents.addEvent("flight",departTime,flightDuration);
+    plan.flightEvents.addEvent(JetLag.Constants.EVENT_TYPE_FLIGHT,departTime,flightDuration);
 
     // calculate when to start the plan
     var planStartTime;
@@ -47,17 +47,17 @@ JetLag.Core.prototype.getPlan = function(config)
             planStartTime = departTime.clone().subtract(3,"days").startOf("day");
             break;
         case JetLag.Constants.PLAN_START_DEPARTURE:
-            planStartTime = departTime.clone();
+            planStartTime = departTime.clone().startOf("day");
             break;
         case JetLag.Constants.PLAN_START_ARRIVAL:
-            planStartTime = arrivalTime.clone();
+            planStartTime = arrivalTime.clone().startOf("day");
             break;
     }
 
 
     var normalSleepTime, normalWakeTime, sleepDuration;
-    normalSleepTime = this.parseTimeString(config.sleepTime);
-    normalWakeTime = this.parseTimeString(config.wakeTime);
+    normalSleepTime = moment.tz(config.sleepTime, ['h:m ', 'H:m'],config.departureTimezone);
+    normalWakeTime = moment.tz(config.wakeTime, ['h:m ', 'H:m'],config.departureTimezone);
     if(normalWakeTime < normalSleepTime) {
         normalWakeTime.add('24', 'hours');
     }
@@ -73,7 +73,7 @@ JetLag.Core.prototype.getPlan = function(config)
     sleepStart.minutes(normalSleepTime.minute());
 
     //
-    plan.sleepEvents.addEvent("start sleep",sleepStart,sleepDuration);
+    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,sleepStart,sleepDuration);
 
 
     if(sleepDuration <= 7)
@@ -83,7 +83,7 @@ JetLag.Core.prototype.getPlan = function(config)
     {
         mbtStart = sleepStart.clone().add(sleepDuration).subtract(3,"hours");
     }
-    plan.minBodyTempEvents.addEvent("start min body temp",mbtStart,moment.duration(0));
+    plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtStart,moment.duration(0));
 
 
     var timezoneDifference = this.getTimezoneDifference(config.departureTimezone, config.arrivalTimezone);
@@ -121,18 +121,18 @@ JetLag.Core.prototype.getPlan = function(config)
     for(var i=0;i<mbtDaysToShift;i++)
     {
         mbtNext.add(1,'days').add(mbtShift,'hours');
-        plan.minBodyTempEvents.addEvent("min body temp",mbtNext.clone(),moment.duration(0));
+        plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
         var seekLight, seekDark;
 
         if(phaseDirection === JetLag.Constants.PHASE_DELAY)
         {
-            plan.lightEvents.addEvent("seek light",mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent("seek dark",mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
         }else
         {
-            plan.lightEvents.addEvent("seek dark",mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent("seek light",mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
 
         }
 
@@ -149,7 +149,7 @@ JetLag.Core.prototype.getPlan = function(config)
                     nextSleep.add(mbtShift,'hours');
                 }
         }
-        plan.sleepEvents.addEvent("sleep",nextSleep.clone(),sleepDuration);
+        plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
 
     }
 
