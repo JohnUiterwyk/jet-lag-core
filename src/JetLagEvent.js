@@ -5,10 +5,10 @@ if (typeof JetLag == "undefined") {
     var JetLag = {};
 };
 
-JetLag.Event = function(title,startMoment, duration)
+JetLag.Event = function(eventType,startMoment, duration)
 {
 
-    this.title = title;
+    this.eventType = eventType;
     this.startMoment = startMoment;
     this.endMoment = moment(startMoment).add(duration);
     this.duration = duration;
@@ -19,8 +19,8 @@ JetLag.Event.prototype.toString = function()
 {
     var result = ""
         result += "" +this.startMoment.format('YYYY-MM-DD HH:mm')+"<br/>";
-        result += "- title: " + this.title +"<br/>";
-        result += "- duration: " +this.duration.hours()+" hours<br/>";
+        result += "- type: " + this.eventType +"<br/>";
+        result += "- duration: " +this.duration.asHours()+" hours<br/>";
         result += "- end: "+this.endMoment.format('YYYY-MM-DD HH:mm') +"<br/><br/>";
     return result;
 };
