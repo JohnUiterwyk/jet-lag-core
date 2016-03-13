@@ -4,8 +4,34 @@
     <meta charset="UTF-8">
     <title>Testing</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .calendarEvent {
+            position:absolute;
+            border: solid 1px black;
+            min-width: 15px;;
+
+        }
+        .calendarRow{
+            min-height: 20px;
+            font-size: 8px;
+        }
+        #sleepRow > div
+        {
+            background-color: #933;
+        }
+        #mbtRow > div
+        {
+            background-color: #999;
+        }
+        #lightRow > div
+        {
+            background-color: #6666ff;
+        }
+
+    </style>
 </head>
 <body>
+<script src="https://code.jquery.com/jquery-2.2.1.js" type="text/javascript"></script>
 <script src="../node_modules/moment/min/moment.min.js" type="text/javascript"></script>
 <script src="../node_modules/moment-timezone/builds/moment-timezone-with-data-2010-2020.js" type="text/javascript"></script>
 <script src="../src/JetLagConstants.js" type="text/javascript"></script>
@@ -13,12 +39,27 @@
 <script src="../src/JetLagEventCollection.js" type="text/javascript"></script>
 <script src="../src/JetLagPlan.js" type="text/javascript"></script>
 <script src="../src/JetLagCore.js" type="text/javascript"></script>
+
+<div  class="" >
+    <div >Calendar View:</div>
+    <div id="calendar">
+        <div id="headerRow" class="calendarRow row">
+
+        </div>
+        <div id="sleepRow" class="calendarRow row"></div>
+        <div id="mbtRow" class="calendarRow row"></div>
+        <div id="lightRow" class="calendarRow row"></div>
+        <div id="flightRow" class="calendarRow row"></div>
+    </div>
+</div>
 <div id="container" class="container">
     <div class="row">
         <div  class="col-sm-12" >
             <div >Input:</div>
             <pre id="inputObject"></pre>
         </div>
+    </div>
+    <div class="row">
     </div>
     <div class="row">
         <div  class="col-sm-12" >
@@ -40,12 +81,12 @@
         departureCity:      "Chicago, United States",
         departureTimezone:  "America/Chicago",
         departureDatetime:  "2016-05-08 16:30",
-        arrivalCity:        "Paris, France",
-        arrivalTimezone:    "Europe/Paris",
-        arrivalDatetime:    "2016-05-09 08:00",
-        sleepTime:          "00:30",
-        wakeTime:           "08:00",
-        planStart:          JetLag.Constants.PLAN_START_3_DAYS_ADVANCE,
+        arrivalCity:        "Moscow",
+        arrivalTimezone:    "Europe/Moscow",
+        arrivalDatetime:    "2016-05-09 09:00",
+        sleepTime:          "22:30",
+        wakeTime:           "08:30",
+        planStart:          JetLag.Constants.PLAN_START_DEPARTURE,
         shiftSpeed:         JetLag.Constants.SHIFT_SPEED_IMMEDIATE
     };
 
@@ -55,26 +96,74 @@
 
     console.log(plan);
 
+    var inputObject =$("#inputObject");
+    inputObject.text(JSON.stringify(inputData, null, 2));
 
-    var inputObject = document.getElementById("inputObject");
-    inputObject.innerHTML = JSON.stringify(inputData, null, 2)
+    var allEvents = plan.getAllEventsInDepartureTimezone();
+    var startMoment = allEvents.getStartMoment().clone().startOf('day');
+    var totalDuration = plan.getTotalDuration();
 
-
-    var homeEventList = document.getElementById("homeEventList");
-    plan.getAllEventsInDepartureTimezone().forEach(function(currentEvent)
+    for(var i=0;i<totalDuration.asHours()+24;i++)
     {
-        var li =document.createElement('li');
-        li.innerHTML = currentEvent.toString();
-        homeEventList.appendChild(li);
+        var hourDiv = $("<div/>");
+        hourDiv.text(Math.floor(i/24)+"."+i%24);
+        hourDiv.addClass("calendarEvent");
+        hourDiv.css({left: 15*i,width:15});
+        $('#headerRow').append(hourDiv);
+
+    }
+    allEvents.forEach(function(currentEvent)
+    {
+        $eventDiv = $("<div/>");
+        $eventDiv.append(currentEvent.eventType);
+        $eventDiv.addClass("calendarEvent");
+
+        var duration = moment.duration(currentEvent.startMoment.diff(startMoment));
+        var leftOffset = 15 * duration.asHours();
+        var eventWidth = 15 * currentEvent.duration.asHours();
+        $eventDiv.css({left: leftOffset,width:eventWidth});
+
+        switch(currentEvent.eventType)
+        {
+            case JetLag.Constants.EVENT_TYPE_FLIGHT:
+                $('#flightRow').append($eventDiv);
+                break;
+            case JetLag.Constants.EVENT_TYPE_SLEEP:
+                $('#sleepRow').append($eventDiv);
+                break;
+            case JetLag.Constants.EVENT_TYPE_MBT:
+                $('#mbtRow').append($eventDiv);
+                break;
+            case JetLag.Constants.EVENT_TYPE_LIGHT:
+            case JetLag.Constants.EVENT_TYPE_DARK:
+                $('#lightRow').append($eventDiv);
+                break;
+        }
     });
 
-    var destinationEventList = document.getElementById("destinationEventList");
+
+    var homeEventList = $("#homeEventList");
+    allEvents.forEach(function(currentEvent)
+    {
+
+        var li =$("<li/>");
+        li.text(currentEvent.toString());
+        homeEventList.append(li);
+
+
+    });
+
+    var destinationEventList = $("#destinationEventList");
     plan.getAllEventsInArrivalTimezone().forEach(function(currentEvent)
     {
-        var li =document.createElement('li');
-        li.innerHTML = currentEvent.toString();
-        destinationEventList.appendChild(li);
+
+        var li =$("<li/>");
+        li.text(currentEvent.toString());
+        destinationEventList.append(li);
+
+
     });
+
 
 
 
