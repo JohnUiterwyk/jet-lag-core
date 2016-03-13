@@ -62,7 +62,7 @@ JetLag.EventCollection.prototype.getEndMoment = function()
             endMoment = currentEvent.endMoment;
         }
     });
-    return startMoment;
+    return endMoment;
 }
 JetLag.EventCollection.prototype.getTotalDuration = function()
 {
