@@ -27,7 +27,7 @@ JetLag.Core = function()
 JetLag.Core.prototype.getPlan = function(config)
 {
     //create the holder for the plan.
-    var plan = new JetLag.Plan();
+    var plan = new JetLag.Plan(config);
     plan.departureTimezone = config.departureTimezone;
     plan.arrivalTimezone = config.arrivalTimezone;
 
@@ -123,33 +123,50 @@ JetLag.Core.prototype.getPlan = function(config)
         mbtNext.add(1,'days').add(mbtShift,'hours');
         plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
-        var seekLight, seekDark;
-
-        if(phaseDirection === JetLag.Constants.PHASE_DELAY)
-        {
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone(),moment.duration(2,'hours'));
-        }else
-        {
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone(),moment.duration(2,'hours'));
-
-        }
 
         //now sleep shift
         nextSleep.add(1,'days');
         if(sleepShifted === false)
         {
-                if (config.shiftSpeed === JetLag.Constants.SHIFT_SPEED_IMMEDIATE && nextSleep > arrivalTime)
-                {
-                    nextSleep.add((mbtDaysToShift-i)*mbtShift,'hours');
-                    sleepShifted =true;
-                }else
-                {
-                    nextSleep.add(mbtShift,'hours');
-                }
+            if (config.shiftSpeed === JetLag.Constants.SHIFT_SPEED_IMMEDIATE && nextSleep > departTime)
+            {
+                nextSleep.add((mbtDaysToShift-i)*mbtShift,'hours');
+                sleepShifted =true;
+            }else
+            {
+                nextSleep.add(mbtShift,'hours');
+            }
         }
-        plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+        var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+
+        var seekLight, seekDark;
+        if(mbtNext > nextSleep && mbtNext < nextSleep.clone().add(sleepDuration))
+        {
+            if(phaseDirection === JetLag.Constants.PHASE_DELAY)
+            {
+                seekLight = nextSleep.clone().subtract(2,'hours');
+                seekDark  = nextSleep.clone().add(sleepDuration);
+
+            }else
+            {
+                seekLight = nextSleep.clone().add(sleepDuration);
+                seekDark = nextSleep.clone().subtract(2,'hours');
+            }
+        }else
+        {
+            if(phaseDirection === JetLag.Constants.PHASE_DELAY)
+            {
+                seekLight = mbtNext.clone().subtract(2,'hours');
+                seekDark  = mbtNext.clone();
+
+            }else
+            {
+                seekLight = mbtNext.clone();
+                seekDark = mbtNext.clone().subtract(2,'hours');
+            }
+        }
+        plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,seekLight,moment.duration(2,'hours'));
+        plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,seekDark,moment.duration(2,'hours'));
 
     }
 
