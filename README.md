@@ -1,28 +1,45 @@
 # JetLagCore
+#### Version 1.1
+
 JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize he effect of jet lag.
 
+## Overview
+The library lives in the global namespace `JetLag`.
+Within the `JetLag` namespace there are 5 classes:
+- `JetLag.Core` : This is the primary interface for the library and contains the main getPlan method.
+- `JetLag.Plan` : This is the object returned by core that will include the list of events. See the section on the plan for more info.
+- `JetLag.Constants` : This object contains various constants used in the application and for input data.
+- `JetLag.Event` : This is the main object within a plan, and contains a event type (i.e. sleep, flight, seek light, etc), a start moment, duration, and end moment.
+- `JetLag.EventCollection`: This is a wrapper for the arrays of events, and includes some convenience methods.
+This object extends the javascript array primitive and can be used in the same way as an normal javascript array (i.e. allEvents.forEach(...))
+
 ## Prerequisites
-- [Moment.js](http://momentjs.com/) v2.x
+- [Moment.js](http://momentjs.com/) v2.x - MomentJS is a critical component of the library, all output datetimes are MomentJS moment objects.
 - [Moment Timezone](http://momentjs.com/timezone/) v0.5.x
 All date/times are returned as MomentJS moments; all durations are returned as MomentJS durations.
 
 ## Usage
+A full example usage of the library can be found in
+`
+examples/jet-lag-core-example.html
+`
+
 include the library in your app after including MomentJS
 ```html
-<script src="../lib/JetLagCore.js" type="text/javascript"></script>
+<script src="../build/JetLagCore.js" type="text/javascript"></script>
 ```
 
-The library lives in the global namespace `JetLag`. With `JetLag` is the `Core` class.
 Create a new object and pass the input data object to the `getPlan` method.
 ```javascript
 var core = new JetLag.Core();
-var plan = core.getPlan(inputData);
+var plan = core.getPlan(config);
+// do something with the plan ...
 ```
 
-## Input Data Object
-The following is an example definition of the input object
+## Config Object
+The following is an example definition of the input config object
 ```javascript
-var inputData = {
+var config = {
     departureCity:      "New York City, United States",
     departureTimezone:  "America/New_York",
     departureDatetime:  "2016-05-08 21:30",
@@ -31,46 +48,100 @@ var inputData = {
     arrivalDatetime:    "2016-05-09 11:05",
     sleepTime:          "22:00",
     wakeTime:           "06:00",
-    planStart:          "arrival",
-    shiftSpeed:         "gradual"
+    planStart:          JetLag.Constants.PLAN_START_3_DAYS_ADVANCE,
+    shiftSpeed:         JetLag.Constants.SHIFT_SPEED_IMMEDIATE
 }
 
 ```
 
-### Input Properties
+### Config object property definitions
 #### Departure City
-City name indicating the location where the user will be starting their plan
+- Type: String
+- City name indicating the location where the user will be starting their plan.
+
 #### Departure Timezone
-Timezone string for the departure city
+- Type: String
+- Timezone name string for the departure city. See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for list of valid values.
+
 #### Departure Datetime
-The date and time of the user departure flight
+- Type: String
+- The date and time of the user departure flight, in the format yyyy-mm-dd hh:mm
+
 #### Arrival City
-City name indicating the location where the user will be starting their plan
+- Type: String
+- City name indicating the location where the user will be starting their plan
+
 #### Arrival Timezone
-Timezone string for the arrival city
+- Type: String
+- Timezone name string for the arrival city. See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for list of valid values.
+
 #### Arrival Datetime
-The date and time the user arrives in the destination
+- Type: String
+- The date and time of the user's flight arrives at the destination, in the format yyyy-mm-dd hh:mm
+
 #### Normal Sleep Time
-The normal time the user goes to sleep.
+- Type: String
+- The normal time the user goes to sleep in 24hour format (i.e 06:00 or 22:00)
+
 #### Normal Wake Time
-The normal time the user wakes up.
+- Type: String
+- The normal time the user wakes up in 24hour format (i.e 06:00 or 22:00)
+
 #### Plan Start Date
-Optional setting indicating when the plan should start.
-Possible values could be 3 days before departure, departure date, arrival date, etc.
+Setting indicating when the plan should start. Possible values could be 3 days before departure, departure date, arrival date, etc.
+Use the `JetLag.Constants` when setting this value; available options are:
+- `JetLag.Constants.PLAN_START_3_DAYS_ADVANCE`
+- `JetLag.Constants.PLAN_START_DEPARTURE`
+- `JetLag.Constants.PLAN_START_ARRIVAL`
+
 #### Sleep Shift Speed on Arrival
-values : Immediate or Gradual
+This indicates whether to immediately switch the user's sleep time on arrival to their normal sleep time in the destination time zone or
+ to gradual shift the sleep time to match the destination time zone.
+Use the `JetLag.Constants` when setting this value; available options are:
+- `JetLag.Constants.SHIFT_SPEED_GRADUAL`
+- `JetLag.Constants.SHIFT_SPEED_IMMEDIATE`
 
-This indicates whether to immediately switch the user's sleep time on arrival to their normal sleep time in the destination time zone or to gradual shift the sleep time to match the destination time zone.
+## Output Plan
+Calling getPlan on a JetLag.Core object will return an object of type JetLag.Plan.
+The plan object contains four event collections:
+- `plan.flightEvents` - this contains the flight event. This collection should only have one flight in this version. Future version may allow for more flights
+- `plan.sleepEvents` - this contains all the sleep events.
+- `plan.mbtEvents` - this contains all the markers for the estimated minimum body temperatures (mbt). Displaying this may not be necessary
+- `plan.lightEvents` - this contains all the 'seek light' or 'seek dark' events
 
+To return a list of all events for a plan as one big array in either the departure or arrival timezone you can call either:
+- `plan.getAllEventsInDepartureTimezone()`
+- `plan.getAllEventsInArrivalTimezone()`
 
-## Output Data Object
-The following is an example output object
-```javascript
-{
-    inputData: {},
-    events:[]
-}
-```
+These two methods will return an array in chronological order of all events in the plan. You can the do a `switch(event.eventType)` to handle different events types.
+See the Event object section for more information on handling event objects.
+
+The plan object also contains `plan.config` which holds the original input config option that was passed to `core.getPlan(config)`
+
+## Event object
+The event object contains the following properties:
+#### event.eventType
+This is a string which will be set to one of the following values from `JetLag.Constants`:
+- `JetLag.Constants.EVENT_TYPE_FLIGHT`
+- `JetLag.Constants.EVENT_TYPE_SLEEP`
+- `JetLag.Constants.EVENT_TYPE_MBT`
+- `JetLag.Constants.EVENT_TYPE_LIGHT`
+- `JetLag.Constants.EVENT_TYPE_DARK`
+
+#### event.startMoment
+This is the start date and time of the event. This object is a MomentJS moment object. Please see the MomentJS documentaion for more information.
+
+#### event.endMoment
+This is the end date and time of the event. This object is a MomentJS moment object. Please see the MomentJS documentaion for more information.
+
+#### event.duration
+This is the duration of the event. This object is a MomentJS duration object. For example you can get the duration in hours using the following: `event.duration.asHours()`. Please see the MomentJS documentaion for more information.
+
+## More examples
+For a detailed example of usage, please see the example file located here:
+`
+examples/jet-lag-core-example.html
+`
 
 ## Jet Lag Algorithm Overview
 The following is a high level overview of the steps required to calculate the user’s sleep and light/dark plan.
