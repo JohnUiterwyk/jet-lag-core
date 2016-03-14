@@ -34,11 +34,7 @@
 <script src="https://code.jquery.com/jquery-2.2.1.js" type="text/javascript"></script>
 <script src="../node_modules/moment/min/moment.min.js" type="text/javascript"></script>
 <script src="../node_modules/moment-timezone/builds/moment-timezone-with-data-2010-2020.js" type="text/javascript"></script>
-<script src="../src/JetLagConstants.js" type="text/javascript"></script>
-<script src="../src/JetLagEvent.js" type="text/javascript"></script>
-<script src="../src/JetLagEventCollection.js" type="text/javascript"></script>
-<script src="../src/JetLagPlan.js" type="text/javascript"></script>
-<script src="../src/JetLagCore.js" type="text/javascript"></script>
+<script src="../build/JetLagCore.js" type="text/javascript"></script>
 
 <div  class="" >
     <div >Calendar View:</div>
@@ -145,23 +141,17 @@
     var homeEventList = $("#homeEventList");
     allEvents.forEach(function(currentEvent)
     {
-
         var li =$("<li/>");
         li.text(currentEvent.toString());
         homeEventList.append(li);
-
-
     });
 
     var destinationEventList = $("#destinationEventList");
     plan.getAllEventsInArrivalTimezone().forEach(function(currentEvent)
     {
-
         var li =$("<li/>");
         li.text(currentEvent.toString());
         destinationEventList.append(li);
-
-
     });
 
 
