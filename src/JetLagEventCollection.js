@@ -36,6 +36,7 @@ JetLag.EventCollection.prototype.addEvent = function(title,startTime, duration)
     var event = new JetLag.Event(title,startTime, duration);
     this.push(event);
     this.sortEvents();
+    return event;
 };
 
 JetLag.EventCollection.prototype.getStartMoment = function()
