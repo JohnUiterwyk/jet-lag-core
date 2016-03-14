@@ -128,11 +128,11 @@ JetLag.Core.prototype.getPlan = function(config)
         if(phaseDirection === JetLag.Constants.PHASE_DELAY)
         {
             plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone(),moment.duration(2,'hours'));
         }else
         {
             plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,mbtNext.clone().subtract(2,'hours'),moment.duration(2,'hours'));
-            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone().add(2,'hours'),moment.duration(2,'hours'));
+            plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,mbtNext.clone(),moment.duration(2,'hours'));
 
         }
 

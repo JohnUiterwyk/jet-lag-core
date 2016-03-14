@@ -7,6 +7,7 @@ if (typeof JetLag == "undefined") {
 
 JetLag.Plan = function()
 {
+    
     this.flightEvents = new JetLag.EventCollection();
     this.sleepEvents = new JetLag.EventCollection();
     this.minBodyTempEvents = new JetLag.EventCollection();
