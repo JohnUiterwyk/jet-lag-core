@@ -5,15 +5,23 @@ if (typeof JetLag == "undefined") {
     var JetLag = {};
 };
 
-JetLag.Plan = function()
+JetLag.Plan = function(config)
 {
-    
+    this.config = config || {};
+
+
     this.flightEvents = new JetLag.EventCollection();
     this.sleepEvents = new JetLag.EventCollection();
     this.minBodyTempEvents = new JetLag.EventCollection();
     this.lightEvents = new JetLag.EventCollection();
-    this.departureTimezone = '"';
-    this.arrivalTimezone = "";
+    if(config.hasOwnProperty('departureTimezone'))
+    {
+        this.departureTimezone = config.departureTimezone;
+    }
+    if(config.hasOwnProperty('arrivalTimezone'))
+    {
+        this.arrivalTimezone = config.arrivalTimezone;
+    }
 };
 
 JetLag.Plan.prototype.toString = function()
