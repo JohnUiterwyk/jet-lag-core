@@ -1,7 +1,7 @@
 # JetLagCore
 #### Version 1.1
 
-JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize he effect of jet lag.
+JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize the effect of jet lag.
 
 ## Overview
 The library lives in the global namespace `JetLag`.
