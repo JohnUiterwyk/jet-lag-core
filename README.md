@@ -1,7 +1,7 @@
 # JetLagCore
 #### Version 1.1
 
-JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize he effect of jet lag.
+JetLagCore is a javascript module that calculates schedules for sleep and light exposure that help users minimize the effect of jet lag.
 
 ## Overview
 The library lives in the global namespace `JetLag`.
@@ -14,9 +14,12 @@ Within the `JetLag` namespace there are 5 classes:
 This object extends the javascript array primitive and can be used in the same way as an normal javascript array (i.e. allEvents.forEach(...))
 
 ## Prerequisites
-- [Moment.js](http://momentjs.com/) v2.x - MomentJS is a critical component of the library, all output datetimes are MomentJS moment objects.
+- [Moment.js](http://momentjs.com/) v2.x -
 - [Moment Timezone](http://momentjs.com/timezone/) v0.5.x
-All date/times are returned as MomentJS moments; all durations are returned as MomentJS durations.
+
+MomentJS and the companion Moment Timezone library are critical components of the library.
+All date/times are returned as MomentJS moments and all durations are returned as MomentJS durations.
+Please see the MomentJS documentation for more information.
 
 ## Usage
 A full example usage of the library can be found in
