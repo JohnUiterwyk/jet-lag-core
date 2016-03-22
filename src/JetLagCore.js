@@ -67,7 +67,7 @@ JetLag.Core.prototype.getPlan = function(config)
     // first lets figure out the sleep / wake time to start from
     sleepStart =  planStartTime.clone().subtract(1,"days");
     // sleep start will always be in home timezone
-    sleepStart.tz(inputData.departureTimezone);
+    sleepStart.tz(config.departureTimezone);
     // set the hour and minute using normal sleep time
     sleepStart.hours(normalSleepTime.hour());
     sleepStart.minutes(normalSleepTime.minute());
