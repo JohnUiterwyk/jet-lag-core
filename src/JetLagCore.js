@@ -169,6 +169,14 @@ JetLag.Core.prototype.getPlan = function(config)
         plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,seekLight,moment.duration(2,'hours'));
         plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,seekDark,moment.duration(2,'hours'));
 
+
+    }
+    //check if last sleep is before flight
+    if(nextSleep < departTime)
+    {
+        nextSleep.add(1,'days');
+        plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+
     }
 
 
