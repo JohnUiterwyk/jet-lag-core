@@ -76,14 +76,14 @@
     var inputData = {
         "departureCity": "Melbourne, Australia",
         "departureTimezone": "Australia/Melbourne",
-        "departureDatetime": "02 April 2016, 02:40",
-        "arrivalCity": "Kuala Lumpur, Malaysia",
-        "arrivalTimezone": "Asia/Kuala_Lumpur",
-        "arrivalDatetime": "02 April 2016, 08:40",
+        "departureDatetime": "26 March 2016, 09:00",
+        "arrivalCity": "Los Angeles, United States",
+        "arrivalTimezone": "America/Los_Angeles",
+        "arrivalDatetime": "26 March 2016, 09:00",
         "sleepTime": "23:00",
         "wakeTime": "06:30",
         "planStart": "PLAN_START_3_DAYS_ADVANCE",
-        "shiftSpeed": "SHIFT_SPEED_GRADUAL"
+        "shiftSpeed": "SHIFT_SPEED_IMMEDIATE"
     };
 
     var core = new JetLag.Core();
@@ -150,7 +150,7 @@
     plan.getAllEventsInArrivalTimezone().forEach(function(currentEvent)
     {
         var li =$("<li/>");
-        li.text(currentEvent.toString());
+        li.html(currentEvent.toString());
         destinationEventList.append(li);
     });
 
