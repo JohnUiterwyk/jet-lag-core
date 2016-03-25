@@ -74,16 +74,16 @@
 <script type="text/javascript">
 
     var inputData = {
-        departureCity:      "Chicago, United States",
-        departureTimezone:  "America/Chicago",
-        departureDatetime:  "2016-05-08 16:30",
-        arrivalCity:        "Moscow",
-        arrivalTimezone:    "Europe/Moscow",
-        arrivalDatetime:    "2016-05-09 09:00",
-        sleepTime:          "22:30",
-        wakeTime:           "08:30",
-        planStart:          JetLag.Constants.PLAN_START_DEPARTURE,
-        shiftSpeed:         JetLag.Constants.SHIFT_SPEED_IMMEDIATE
+        "departureCity": "Melbourne, Australia",
+        "departureTimezone": "Australia/Melbourne",
+        "departureDatetime": "02 April 2016, 02:40",
+        "arrivalCity": "Kuala Lumpur, Malaysia",
+        "arrivalTimezone": "Asia/Kuala_Lumpur",
+        "arrivalDatetime": "02 April 2016, 08:40",
+        "sleepTime": "23:00",
+        "wakeTime": "06:30",
+        "planStart": "PLAN_START_3_DAYS_ADVANCE",
+        "shiftSpeed": "SHIFT_SPEED_GRADUAL"
     };
 
     var core = new JetLag.Core();
@@ -142,7 +142,7 @@
     allEvents.forEach(function(currentEvent)
     {
         var li =$("<li/>");
-        li.text(currentEvent.toString());
+        li.html(currentEvent.toString());
         homeEventList.append(li);
     });
 
