@@ -94,18 +94,17 @@ JetLag.Core.prototype.getPlan = function(config)
     sleepStart.hours(normalSleepTime.hour());
     sleepStart.minutes(normalSleepTime.minute());
 
-    //
-    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,sleepStart,sleepDuration);
+    //plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,sleepStart,sleepDuration);
 
 
-    if(sleepDuration <= 7)
+    if(sleepDuration < 8)
     {
         mbtStart = sleepStart.clone().add(sleepDuration).subtract(2,"hours");
     }else
     {
         mbtStart = sleepStart.clone().add(sleepDuration).subtract(3,"hours");
     }
-    plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtStart,moment.duration(0));
+    //plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtStart,moment.duration(0));
 
 
     var timezoneDifference = this.getTimezoneDifference(config.departureTimezone, config.arrivalTimezone);
@@ -137,27 +136,36 @@ JetLag.Core.prototype.getPlan = function(config)
     // for sleep:
     // shift
 
-    var sleepShifted = false;
+    var sleepShiftComplete = false;
     var nextSleep = sleepStart.clone();
     var mbtNext = mbtStart.clone();
+    plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
+    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
     for(var i=0;i<mbtDaysToShift;i++)
     {
         mbtNext.add(1,'days').add(mbtShift,'hours');
 
         plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
-
-        //now sleep shift
         nextSleep.add(1,'days');
-        if(sleepShifted === false)
+        //
+
+        if(sleepShiftComplete === false)
         {
             if (config.shiftSpeed === JetLag.Constants.SHIFT_SPEED_IMMEDIATE && nextSleep > departTime)
             {
                 nextSleep.add((mbtDaysToShift-i)*mbtShift,'hours');
-                sleepShifted =true;
+                nextSleep.hours(normalSleepTime.clone().add(timezoneDifference,"hours").hour());
+                nextSleep.minutes(normalSleepTime.clone().add(timezoneDifference,"hours").minute());
+                sleepShiftComplete =true;
             }else
             {
                 nextSleep.add(mbtShift,'hours');
+                if(i === mbtDaysToShift-1)
+                {
+                    nextSleep.hours(normalSleepTime.clone().add(timezoneDifference,"hours").hour());
+                    nextSleep.minutes(normalSleepTime.clone().add(timezoneDifference,"hours").minute());
+                }
             }
         }
         var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
@@ -190,6 +198,14 @@ JetLag.Core.prototype.getPlan = function(config)
         }
         plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_LIGHT,seekLight,moment.duration(2,'hours'));
         plan.lightEvents.addEvent(JetLag.Constants.EVENT_TYPE_DARK,seekDark,moment.duration(2,'hours'));
+
+
+    }
+    //check if last sleep is before flight
+    if(nextSleep < departTime)
+    {
+        nextSleep.add(1,'days');
+        plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
 
     }
 
