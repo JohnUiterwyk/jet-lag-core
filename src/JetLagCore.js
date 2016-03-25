@@ -32,8 +32,9 @@ JetLag.Core.prototype.getPlan = function(config)
     plan.arrivalTimezone = config.arrivalTimezone;
 
     // first convert times to moment objects
-    var departTime = moment.tz(config.departureDatetime, config.departureTimezone);
-    var arrivalTime = moment.tz(config.arrivalDatetime, config.arrivalTimezone);
+    var validDateFormats = ["DD MMMM YYYY, HH:mm","YYYY-MM-DD HH:mm"];
+    var departTime = moment.tz(config.departureDatetime,validDateFormats, config.departureTimezone);
+    var arrivalTime = moment.tz(config.arrivalDatetime,validDateFormats, config.arrivalTimezone);
 
     //calculate duration of the flight, then add a flight event to the plan
     var flightDuration = moment.duration(arrivalTime.diff(departTime.clone().tz(config.arrivalTimezone)));
@@ -121,6 +122,7 @@ JetLag.Core.prototype.getPlan = function(config)
     for(var i=0;i<mbtDaysToShift;i++)
     {
         mbtNext.add(1,'days').add(mbtShift,'hours');
+
         plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
 
