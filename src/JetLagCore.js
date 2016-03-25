@@ -115,27 +115,36 @@ JetLag.Core.prototype.getPlan = function(config)
     // for sleep:
     // shift
 
-    var sleepShifted = false;
+    var sleepShiftComplete = false;
     var nextSleep = sleepStart.clone();
     var mbtNext = mbtStart.clone();
+    plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
+    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
     for(var i=0;i<mbtDaysToShift;i++)
     {
         mbtNext.add(1,'days').add(mbtShift,'hours');
 
         plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
-
-        //now sleep shift
         nextSleep.add(1,'days');
-        if(sleepShifted === false)
+        //
+
+        if(sleepShiftComplete === false)
         {
             if (config.shiftSpeed === JetLag.Constants.SHIFT_SPEED_IMMEDIATE && nextSleep > departTime)
             {
                 nextSleep.add((mbtDaysToShift-i)*mbtShift,'hours');
-                sleepShifted =true;
+                nextSleep.hours(normalSleepTime.clone().add(timezoneDifference,"hours").hour());
+                nextSleep.minutes(normalSleepTime.clone().add(timezoneDifference,"hours").minute());
+                sleepShiftComplete =true;
             }else
             {
                 nextSleep.add(mbtShift,'hours');
+                if(i === mbtDaysToShift-1)
+                {
+                    nextSleep.hours(normalSleepTime.clone().add(timezoneDifference,"hours").hour());
+                    nextSleep.minutes(normalSleepTime.clone().add(timezoneDifference,"hours").minute());
+                }
             }
         }
         var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
