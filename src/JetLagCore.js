@@ -73,18 +73,17 @@ JetLag.Core.prototype.getPlan = function(config)
     sleepStart.hours(normalSleepTime.hour());
     sleepStart.minutes(normalSleepTime.minute());
 
-    //
-    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,sleepStart,sleepDuration);
+    //plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,sleepStart,sleepDuration);
 
 
-    if(sleepDuration <= 7)
+    if(sleepDuration < 8)
     {
         mbtStart = sleepStart.clone().add(sleepDuration).subtract(2,"hours");
     }else
     {
         mbtStart = sleepStart.clone().add(sleepDuration).subtract(3,"hours");
     }
-    plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtStart,moment.duration(0));
+    //plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtStart,moment.duration(0));
 
 
     var timezoneDifference = this.getTimezoneDifference(config.departureTimezone, config.arrivalTimezone);
