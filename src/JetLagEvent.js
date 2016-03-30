@@ -26,11 +26,20 @@ JetLag.Event.prototype.toString = function()
 };
 
 JetLag.Event.prototype.compare = function compare(a, b) {
-    if (a.startMoment < b.startMoment) {
+    if (a.startMoment.isBefore(b.startMoment)) {
         return -1;
     }
-    if (a.startMoment > b.startMoment) {
+    if (a.startMoment.isAfter(b.startMoment)) {
         return 1;
+    }
+    if(a.startMoment.isSame(b.startMoment))
+    {
+        if (a.endMoment.isBefore(b.endMoment)) {
+            return -1;
+        }
+        if (a.endMoment.isAfter(b.endMoment)) {
+            return 1;
+        }
     }
     // a must be equal to b
     return 0;
