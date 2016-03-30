@@ -73,7 +73,7 @@ JetLag.EventCollection.prototype.getTotalDuration = function()
 
 JetLag.EventCollection.prototype.sortEvents = function()
 {
-    this.sort(JetLag.Event.compare);
+    this.sort(JetLag.Event.prototype.compare);
 }
 
 JetLag.EventCollection.prototype.setTimezone = function(timezone)

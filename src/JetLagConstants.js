@@ -15,6 +15,7 @@ JetLag.Constants =
     PHASE_DELAY:"PHASE_DELAY",
     EVENT_TYPE_FLIGHT:"Flight",
     EVENT_TYPE_SLEEP:"Sleep",
+    EVENT_TYPE_WAKE:"Wake",
     EVENT_TYPE_MBT:"mbt",
     EVENT_TYPE_LIGHT:"Seek Light",
     EVENT_TYPE_DARK:"Seek Dark",
