@@ -108,7 +108,7 @@ Use the `JetLag.Constants` when setting this value; available options are:
 Calling getPlan on a JetLag.Core object will return an object of type JetLag.Plan.
 The plan object contains four event collections:
 - `plan.flightEvents` - this contains the flight event. This collection should only have one flight in this version. Future version may allow for more flights
-- `plan.sleepEvents` - this contains all the sleep events.
+- `plan.sleepEvents` - this contains all the sleep and wake events.
 - `plan.mbtEvents` - this contains all the markers for the estimated minimum body temperatures (mbt). Displaying this may not be necessary
 - `plan.lightEvents` - this contains all the 'seek light' or 'seek dark' events
 
@@ -127,6 +127,7 @@ The event object contains the following properties:
 This is a string which will be set to one of the following values from `JetLag.Constants`:
 - `JetLag.Constants.EVENT_TYPE_FLIGHT`
 - `JetLag.Constants.EVENT_TYPE_SLEEP`
+- `JetLag.Constants.EVENT_TYPE_WAKE`
 - `JetLag.Constants.EVENT_TYPE_MBT`
 - `JetLag.Constants.EVENT_TYPE_LIGHT`
 - `JetLag.Constants.EVENT_TYPE_DARK`
