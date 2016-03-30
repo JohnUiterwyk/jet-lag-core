@@ -15,6 +15,7 @@ JetLag.Constants =
     PHASE_DELAY:"PHASE_DELAY",
     EVENT_TYPE_FLIGHT:"Flight",
     EVENT_TYPE_SLEEP:"Sleep",
+    EVENT_TYPE_WAKE:"Wake",
     EVENT_TYPE_MBT:"mbt",
     EVENT_TYPE_LIGHT:"Seek Light",
     EVENT_TYPE_DARK:"Seek Dark",
@@ -138,9 +139,11 @@ JetLag.Core.prototype.getPlan = function(config)
 
     var sleepShiftComplete = false;
     var nextSleep = sleepStart.clone();
+    var nextWake = sleepStart.clone().add(sleepDuration);
     var mbtNext = mbtStart.clone();
     plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
     plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_WAKE,nextWake.clone(),moment.duration(0));
     for(var i=0;i<mbtDaysToShift;i++)
     {
         mbtNext.add(1,'days').add(mbtShift,'hours');
@@ -168,7 +171,9 @@ JetLag.Core.prototype.getPlan = function(config)
                 }
             }
         }
+        nextWake = nextSleep.clone().add(sleepDuration);
         var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+        var nextWakeEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_WAKE,nextWake.clone(),moment.duration(0));
 
         var seekLight, seekDark;
         if(mbtNext > nextSleep && mbtNext < nextSleep.clone().add(sleepDuration))
@@ -176,11 +181,11 @@ JetLag.Core.prototype.getPlan = function(config)
             if(phaseDirection === JetLag.Constants.PHASE_DELAY)
             {
                 seekLight = nextSleep.clone().subtract(2,'hours');
-                seekDark  = nextSleep.clone().add(sleepDuration);
+                seekDark  = nextWake.clone();
 
             }else
             {
-                seekLight = nextSleep.clone().add(sleepDuration);
+                seekLight = nextWake.clone();
                 seekDark = nextSleep.clone().subtract(2,'hours');
             }
         }else
@@ -273,11 +278,20 @@ JetLag.Event.prototype.toString = function()
 };
 
 JetLag.Event.prototype.compare = function compare(a, b) {
-    if (a.startMoment < b.startMoment) {
+    if (a.startMoment.isBefore(b.startMoment)) {
         return -1;
     }
-    if (a.startMoment > b.startMoment) {
+    if (a.startMoment.isAfter(b.startMoment)) {
         return 1;
+    }
+    if(a.startMoment.isSame(b.startMoment))
+    {
+        if (a.endMoment.isBefore(b.endMoment)) {
+            return -1;
+        }
+        if (a.endMoment.isAfter(b.endMoment)) {
+            return 1;
+        }
     }
     // a must be equal to b
     return 0;
@@ -362,7 +376,7 @@ JetLag.EventCollection.prototype.getTotalDuration = function()
 
 JetLag.EventCollection.prototype.sortEvents = function()
 {
-    this.sort(JetLag.Event.compare);
+    this.sort(JetLag.Event.prototype.compare);
 }
 
 JetLag.EventCollection.prototype.setTimezone = function(timezone)
