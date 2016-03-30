@@ -142,7 +142,7 @@ JetLag.Core.prototype.getPlan = function(config)
     var nextWake = sleepStart.clone().add(sleepDuration);
     var mbtNext = mbtStart.clone();
     plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
-    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+    plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),moment.duration(0));
     plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_WAKE,nextWake.clone(),moment.duration(0));
     for(var i=0;i<mbtDaysToShift;i++)
     {
@@ -172,7 +172,7 @@ JetLag.Core.prototype.getPlan = function(config)
             }
         }
         nextWake = nextSleep.clone().add(sleepDuration);
-        var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),sleepDuration);
+        var nextSleepEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_SLEEP,nextSleep.clone(),moment.duration(0));
         var nextWakeEvent = plan.sleepEvents.addEvent(JetLag.Constants.EVENT_TYPE_WAKE,nextWake.clone(),moment.duration(0));
 
         var seekLight, seekDark;
