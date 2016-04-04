@@ -150,6 +150,7 @@ JetLag.Core.prototype.getPlan = function(config)
 
         plan.minBodyTempEvents.addEvent(JetLag.Constants.EVENT_TYPE_MBT,mbtNext.clone(),moment.duration(0));
 
+
         nextSleep.add(1,'days');
         //
 
@@ -214,6 +215,16 @@ JetLag.Core.prototype.getPlan = function(config)
 
     }
 
+    // hack.. cycle through the sleep events, and if it is a wake event, get the time of the next sleep
+    for(var i=0; i<plan.sleepEvents.length; i++)
+    {
+        if(plan.sleepEvents[i].eventType === JetLag.Constants.EVENT_TYPE_WAKE
+        && i !==  plan.sleepEvents.length -1)
+        {
+            plan.sleepEvents[i].duration =   moment.duration(plan.sleepEvents[i+1].startMoment.diff(plan.sleepEvents[i].startMoment));
+            plan.sleepEvents[i].endMoment.add(plan.sleepEvents[i].duration);
+        }
+    }
 
     // now calculate sleep plan
 
